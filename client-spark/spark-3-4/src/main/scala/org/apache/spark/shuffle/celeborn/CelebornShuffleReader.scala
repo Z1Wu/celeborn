@@ -126,6 +126,7 @@ class CelebornShuffleReader[K, C](
       String,
       (TransportClient, JArrayList[PartitionLocation], PbOpenStreamList.Builder)]()
     // partitionId -> (partition uniqueId -> chunkRange pair)
+    // 记录对于该 task 需要读取的 partitionId 数据，需要对应去获取的 PartitionLocation 的哪些 chunk
     val partitionId2ChunkRange = new JHashMap[Int, JMap[String, Pair[Integer, Integer]]]()
 
     val partitionId2PartitionLocations = new JHashMap[Int, JSet[PartitionLocation]]()
@@ -146,13 +147,13 @@ class CelebornShuffleReader[K, C](
             startMapIndex,
             endMapIndex)
           partitionId2ChunkRange.put(partitionId, partitionLocation2ChunkRange)
-          // filter locations avoid OPEN_STREAM when split skew partition without map range
-          val filterLocations = locations.asScala
+          // filter locations to avoid unnecessary OPEN_STREAM
+          val filteredLocations = locations.asScala
             .filter { location =>
               null != partitionLocation2ChunkRange &&
               partitionLocation2ChunkRange.containsKey(location.getUniqueId)
             }
-          locations = filterLocations.asJava
+          locations = filteredLocations.asJava
           partitionId2PartitionLocations.put(partitionId, locations)
         }
 

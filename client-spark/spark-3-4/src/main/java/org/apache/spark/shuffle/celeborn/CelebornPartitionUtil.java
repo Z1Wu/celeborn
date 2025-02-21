@@ -61,7 +61,9 @@ public class CelebornPartitionUtil {
     locations.sort(Comparator.comparing((PartitionLocation p) -> p.getUniqueId()));
     long totalPartitionSize =
         locations.stream().mapToLong((PartitionLocation p) -> p.getStorageInfo().fileSize).sum();
+    // subPartitionSize 在 reducerPartitionSpec 处获取，subPartitionIndex， spark 根据 aqe 拆分后的任务数
     long step = totalPartitionSize / subPartitionSize;
+    // subPartitionIndex， spark 根据 aqe 拆分后的任务数，也就是对应的 Partition 输出的 offset
     long startOffset = step * subPartitionIndex;
     long endOffset =
         subPartitionIndex < subPartitionSize - 1
