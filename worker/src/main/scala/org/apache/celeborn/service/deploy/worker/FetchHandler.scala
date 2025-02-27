@@ -281,13 +281,21 @@ class FetchHandler(
               streamId,
               shuffleKey,
               fileName)
-            makeStreamHandler(streamId, numChunks = 0)
+            makeStreamHandler(
+              streamId,
+              meta.getNumChunks,
+              meta.getChunkOffsets,
+              info.getFilePath)
           case info: DiskFileInfo if info.isS3 =>
             chunkStreamManager.registerStream(
               streamId,
               shuffleKey,
               fileName)
-            makeStreamHandler(streamId, numChunks = 0)
+            makeStreamHandler(
+              streamId,
+              meta.getNumChunks,
+              meta.getChunkOffsets,
+              info.getFilePath)
           case _ =>
             val managedBuffer = fileInfo match {
               case df: DiskFileInfo =>
